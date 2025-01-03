@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_boilerplate/domain/models/user.dart';
 import 'package:flutter_boilerplate/domain/repositories/auth.dart';
@@ -5,39 +6,20 @@ import 'package:flutter_boilerplate/domain/repositories/auth.dart';
 class AuthRepositoryFirebase implements AuthRepository {
   UserModel? _currentUser;
   bool get _isLogged => _currentUser != null;
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
-  // Map Firebase user to UserModel
-  UserModel _mapFirebaseUserToUserModel(User user) {
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  UserModel _mapFirebaseUserToUserModel(User user, DocumentSnapshot doc) {
     return UserModel(
       id: user.uid,
-      name: user.displayName!,
+      name: doc.get('name'),
       email: user.email!,
     );
   }
 
   @override
-  Future<UserModel> getUser() async {
-    try {
-      if (_isLogged) {
-        return Future.value(_currentUser!);
-      }
-      final user = _firebaseAuth.currentUser;
-      if (user != null) {
-        _currentUser = _mapFirebaseUserToUserModel(user);
-        return Future.value(_currentUser!);
-      }
-      throw Exception('User not authenticated');
-    } catch (e) {
-      throw Exception('Failed to get user');
-    }
-  }
-
-  @override
-  Future<bool> isLogged() => Future.value(_isLogged);
-
-  @override
-  Future<void> login({
+  Future<UserModel> login({
     required String email,
     required String password,
   }) async {
@@ -46,11 +28,35 @@ class AuthRepositoryFirebase implements AuthRepository {
         email: email,
         password: password,
       );
-      _currentUser = _mapFirebaseUserToUserModel(userCredential.user!);
+      final userDoc = await _firestore
+          .collection('users')
+          .doc(userCredential.user!.uid)
+          .get();
+      _currentUser = _mapFirebaseUserToUserModel(userCredential.user!, userDoc);
+      return _currentUser!;
     } on FirebaseAuthException catch (e) {
       throw Exception(e.message);
     } catch (e) {
       throw Exception('Failed to login');
+    }
+  }
+
+  @override
+  Future<UserModel> getCurrentUser() async {
+    try {
+      if (_isLogged) {
+        return Future.value(_currentUser!);
+      }
+      final user = _firebaseAuth.currentUser;
+      if (user != null) {
+        final userDoc =
+            await _firestore.collection('users').doc(user.uid).get();
+        _currentUser = _mapFirebaseUserToUserModel(user, userDoc);
+        return _currentUser!;
+      }
+      throw Exception('User not authenticated');
+    } catch (e) {
+      throw Exception('Failed to get user');
     }
   }
 
@@ -65,20 +71,27 @@ class AuthRepositoryFirebase implements AuthRepository {
   }
 
   @override
-  Future<void> register({
+  Future<UserModel> register({
     required String name,
     required String email,
     required String password,
     required String confirmPassword,
-  }) {
+  }) async {
     if (password != confirmPassword) {
       throw Exception('Passwords do not match');
     }
     try {
-      return _firebaseAuth.createUserWithEmailAndPassword(
+      final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+      final user = userCredential.user!;
+      await _firestore.collection('users').doc(user.uid).set({
+        'name': name,
+        'email': email,
+      });
+      final userDoc = await _firestore.collection('users').doc(user.uid).get();
+      return _mapFirebaseUserToUserModel(user, userDoc);
     } on FirebaseAuthException catch (e) {
       throw Exception(e.message);
     } catch (e) {

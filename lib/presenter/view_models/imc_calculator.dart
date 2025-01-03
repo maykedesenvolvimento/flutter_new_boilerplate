@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_boilerplate/_core/utils/command.dart';
+import 'package:flutter_boilerplate/core/utils/command.dart';
 import 'package:flutter_boilerplate/domain/repositories/imc.dart';
 
 class ImcCalculatorViewModel extends ChangeNotifier {
@@ -24,10 +24,10 @@ class ImcCalculatorViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> calculateImc() async {
+  void calculateImc() {
     calculateImcCommand.reset();
-    await calculateImcCommand(() async {
-      return await _imcRepository.calculateImc(
+    calculateImcCommand(() {
+      return _imcRepository.calculateImc(
         height: _height,
         weight: _weight,
       );

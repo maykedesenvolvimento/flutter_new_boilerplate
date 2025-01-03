@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_boilerplate/_core/configs/dependencies.dart';
+import 'package:flutter_boilerplate/core/configs/dependencies.dart';
 import 'package:flutter_boilerplate/presenter/pages/imc_calculator.dart';
 import 'package:provider/provider.dart';
 
