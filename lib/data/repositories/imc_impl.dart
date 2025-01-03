@@ -1,4 +1,4 @@
-import 'imc.dart';
+import 'package:flutter_boilerplate/domain/repositories/imc.dart';
 
 class ImcRepositoryImpl implements ImcRepository {
   @override

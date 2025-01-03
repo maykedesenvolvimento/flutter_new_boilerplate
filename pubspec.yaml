@@ -12,6 +12,8 @@ dependencies:
 
   cupertino_icons: ^1.0.2
   provider: ^6.1.2
+  localstorage: ^4.0.1+4
+  firebase_auth: ^4.16.0
 
 dev_dependencies:
   flutter_test:

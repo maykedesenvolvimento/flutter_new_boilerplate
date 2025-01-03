@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_boilerplate/presenter/view_models/imc_calculator.dart';
 import 'package:provider/provider.dart';
-
-import '../view_models/imc_calculator.dart';
 
 class ImcCalculatorPage extends StatelessWidget {
   const ImcCalculatorPage({Key? key}) : super(key: key);

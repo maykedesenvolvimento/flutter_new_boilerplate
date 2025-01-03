@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_boilerplate/core/utils/command.dart';
-import 'package:flutter_boilerplate/data/repositories/imc.dart';
+import 'package:flutter_boilerplate/_core/utils/command.dart';
+import 'package:flutter_boilerplate/domain/repositories/imc.dart';
 
 class ImcCalculatorViewModel extends ChangeNotifier {
   final ImcRepository _imcRepository;
